@@ -3,7 +3,7 @@
 **Authors:** Catherine Ye, Shreya  
 **Course:** DSO 599 – Causal Inference with Machine Learning for Business Analytics  
 **Institution:** University of Southern California, Marshall School of Business  
-**Date:** December 2025
+**Date:** 15 December 2025
 
 ---
 
@@ -15,17 +15,16 @@ We leverage administrative data on 5,272 students across 15,680 student-semester
 observations to estimate peer effects while addressing selection bias through 
 permutation tests, covariate balance checks, and alternative estimation strategies.
 
-**Main Finding:** A one-standard-deviation increase in roommate GPA (≈20 percentile 
-points) increases own GPA by 1 percentile point (β = 0.050, p < 0.001). Effects are 
-47% stronger in academically homogeneous rooms and vary by within-room rank.
-
 ---
+**Main Finding:** A 0.10 increase in roommate average GPA percentile increases own 
+GPA by 0.005 percentile points (β = 0.050, p < 0.001). Effects are approximately 
+twice as strong in academically homogeneous rooms compared to heterogeneous rooms.
+
 
 ## 📁 Repository Structure
 ```
 ├── data/              # Raw data files (CSV format)
 ├── code/              # Jupyter notebook with complete analysis
-├── output/            # Generated figures and tables
 ├── report/            # Final PDF report
 └── README.md          # This file
 ```
@@ -61,15 +60,17 @@ points) increases own GPA by 1 percentile point (β = 0.050, p < 0.001). Effects
 **Identification Strategy:**
 - Quasi-random dormitory assignment within cohort × gender × major strata
 - OLS regression with fixed effects (cohort, semester, gender, major)
-- Permutation tests for validation (1,000 iterations)
+- Heteroskedasticity-robust standard errors (HC3) and clustered standard errors (by student)
+- Permutation tests for validation (200 iterations)
 
 **Robustness Checks:**
 - Inverse Probability Weighting (IPW)
 - Nearest Neighbor Matching
-- Covariate balance tests
+- Covariate balance tests (R² = 0.089 for predicting RM_Avg from observables)
 - Alternative specifications
 
-**Main Specification:**
+
+**Main Specification (Model 3):**
 ```
 GPA_Post = α + β₁·GPA_Prior + β₂·RM_Avg + Cohort_FE + Semester_FE + Gender_FE + Major_FE + ε
 ```
@@ -78,20 +79,21 @@ GPA_Post = α + β₁·GPA_Prior + β₂·RM_Avg + Cohort_FE + Semester_FE + Gen
 
 ## 📊 Key Results
 
-| Model | RM_Avg Coefficient | Std. Error | p-value | R² |
-|-------|-------------------|------------|---------|-----|
-| (1) Bivariate | 0.3650*** | 0.0114 | <0.001 | 0.059 |
-| (2) + GPA_Prior | 0.0618*** | 0.0050 | <0.001 | 0.666 |
-| (3) Full Controls | 0.0500*** | 0.0050 | <0.001 | 0.669 |
+| Model | RM_Avg Coef | p-value | GPA_Prior Coef | p-value | R² |
+|-------|-------------|---------|----------------|---------|-----|
+| (1) Bivariate | 0.3650 | <0.001 | — | — | 0.0593 |
+| (2) + GPA_Prior | 0.0618 | <0.001 | 0.805 | <0.001 | 0.6663 |
+| (3) Full Controls | 0.0500 | <0.001 | 0.801 | <0.001 | 0.6685 |
 
-**Heterogeneity Analysis:**
-- Peer effects 47% stronger in homogeneous rooms (β₄ = -0.089, p = 0.089)
-- Rank effects moderated by room composition (β₅ = -0.022, p = 0.012)
 
-**Robustness (Q4 vs Q1 comparison):**
-- OLS (implied): 2.52 percentile points
-- IPW: 2.64 percentile points
-- Matching: 2.73 percentile points
+**Interpretation:**
+- **Model 1:** Unconditional correlation shows strong positive association (β = 0.365), 
+  but reflects both peer effects and selection on ability.
+- **Model 2:** After controlling for prior GPA, coefficient drops 83% to 0.062, showing 
+  most bivariate correlation is from shared ability.
+- **Model 3 (Primary):** With full controls, peer effect is β = 0.050 (p < 0.001). 
+  A 0.10 increase in roommate GPA percentile increases own GPA by 0.005 percentile 
+  points.
 
 ---
 
